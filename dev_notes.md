@@ -10,7 +10,7 @@
 
 **Область:** Backend
 
-- `CompleteTask`: задача завершается и сохраняется даже если публикация в RabbitMQ не удалась. Ошибка пишется в лог (`LogError`, категория `WebApplication1.DTO.TaskItem`) и ответ остаётся 200.
+- `CompleteTask`: задача завершается и сохраняется даже если публикация в RabbitMQ не удалась. Ошибка пишется в лог (`LogError`, категория `WebApplication1.Domain.TaskItem`) и ответ остаётся 200.
 - Таймаут публикации `PublishTimeout` = 5 с. Без него при остановленном брокере `Publish` висел до таймаута клиента (~100 с). Отмена самого запроса по-прежнему пробрасывается.
 - Проверено вручную: при остановленном `rabbitmq` `PUT complete` даёт 200 за ~5 с, `IsCompleted` сохраняется, запись в логе есть.
 - Ограничение: событие теряется навсегда (без Outbox и повторной отправки).
@@ -32,8 +32,8 @@
 - `docker-compose.yml`: PostgreSQL 17 (база `TestDb`, порт хоста 5433) и RabbitMQ 3 management (5672, 15672).
 - `docker/rabbitmq/definitions.json`: обменник `task.events` (topic), очередь `task.completed`, биндинг по ключу `task.completed`, пользователь `guest`. В `rabbitmq.conf` разрешён вход `guest` через проброс портов.
 - Важно: при загрузке `definitions.json` брокер не создаёт дефолтного `guest`, поэтому пользователь и его права описаны в файле.
-- `tests/WebApplication1.IntegrationTests`: тест `CompletingTaskViaApi_DeliversTaskCompletedMessageToRabbitMq` (POST → PUT complete → сообщение в `task.completed` через реальный подписчик). Запуск: `docker compose up -d`, затем `dotnet test tests/WebApplication1.IntegrationTests`.
-- `tests/` исключен из сборки основного проекта (`DefaultItemExcludes`). В тестовом проекте EF Core закреплён на 9.0.11, иначе транзитивная 9.0.1 даёт конфликт сборки.
+- `WebApplication1.IntegrationTests`: тест `CompletingTaskViaApi_DeliversTaskCompletedMessageToRabbitMq` (POST → PUT complete → сообщение в `task.completed` через реальный подписчик). Запуск: `docker compose up -d`, затем `dotnet test WebApplication1.IntegrationTests`.
+- `WebApplication1.IntegrationTests/` исключен из сборки основного проекта (`DefaultItemExcludes`). В тестовом проекте EF Core закреплён на 9.0.11, иначе транзитивная 9.0.1 даёт конфликт сборки.
 - `Program.cs`: `public partial class Program;` для `WebApplicationFactory`.
 
 ### 2026-10-22 — Graceful shutdown: ожидание публикаций и остановка RabbitMQ
@@ -59,7 +59,7 @@
 - Тело события — plain JSON в camelCase: `taskId`, `title`, `completedAt`, `priority` (строкой). Включён `UseRawJsonSerializer` для шины.
 
 **Затронутые пути:**
-- `DTO/CreateTaskRequest.cs`
+- `Domain/CreateTaskRequest.cs`
 - `Contracts/TaskCompleted.cs`
 - `Endpoints/TaskEndpoints.cs`
 - `Program.cs`
@@ -78,7 +78,7 @@
 
 **Затронутые пути:**
 - `Endpoints/TaskEndpoints.cs`
-- `DTO/CreateTaskRequest.cs`
+- `Domain/CreateTaskRequest.cs`
 - `Contracts/TaskCompleted.cs`
 - `Data/AppDbContext.cs`
 - `Migrations/`
@@ -95,8 +95,8 @@
 - Добавлен enum `Priority` (Low, Medium, High).
 
 **Затронутые пути:**
-- `DTO/TaskItem.cs`
-- `DTO/Priority.cs`
+- `Domain/TaskItem.cs`
+- `Domain/Priority.cs`
 
 **Зачем / контекст:** Модель задач для будущего API и хранения в PostgreSQL. Ограничения Title (не пусто, до 200 символов) пока не выражены в коде, их нужно задать в EF-конфигурации или валидации.
 

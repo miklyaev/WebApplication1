@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace WebApplication1.DTO;
+namespace WebApplication1.Domain;
 
 public record CreateTaskRequest(
     [property: Required(AllowEmptyStrings = false, ErrorMessage = "Title is required.")]

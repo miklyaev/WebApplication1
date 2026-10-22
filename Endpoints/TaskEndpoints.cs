@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
 using WebApplication1.Contracts;
 using WebApplication1.Data;
-using WebApplication1.DTO;
+using WebApplication1.Domain;
 using WebApplication1.Infrastructure;
 
 namespace WebApplication1.Endpoints;

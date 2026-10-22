@@ -1,4 +1,4 @@
-namespace WebApplication1.DTO;
+namespace WebApplication1.Domain;
 
 public class TaskItem
 {

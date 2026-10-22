@@ -1,4 +1,4 @@
-using WebApplication1.DTO;
+using WebApplication1.Domain;
 
 namespace WebApplication1.Contracts;
 
